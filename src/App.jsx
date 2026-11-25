@@ -1,0 +1,268 @@
+
+import { useState, useEffect, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  ChevronUp,
+  ChevronDown,
+  Maximize,
+  Minimize,
+  Presentation,
+} from 'lucide-react'
+
+import PresentationStart from './components/PresentationStart'
+
+// Import des 20 diapositives
+import Introduction from './slides/Introduction'
+import Problem from './slides/Problem'
+import VLAN from './slides/VLAN'
+import VLANExample from './slides/VLANExample'
+import Trunk from './slides/Trunk'
+import Layer2Loops from './slides/Layer2Loops'
+import STPExplanation from './slides/STPExplanation'
+import BPDU from './slides/BPDU'
+import RootBridge from './slides/RootBridge'
+import PortRoles from './slides/PortRoles'
+import PortStates from './slides/PortStates'
+import STPCost from './slides/STPCost'
+import Topology from './slides/Topology'
+import VLANConfiguration from './slides/VLANConfiguration'
+import STPConfiguration from './slides/STPConfiguration'
+import SimulationSansSTP from './slides/SimulationSansSTP'
+import SimulationAvecSTP from './slides/SimulationAvecSTP'
+import LinkFailure from './slides/LinkFailure'
+import Analysis from './slides/Analysis'
+import Conclusion from './slides/Conclusion'
+
+// Liste des diapositives
+const slides = [
+  Introduction,
+  Problem,
+  VLAN,
+  VLANExample,
+  Trunk,
+  Layer2Loops,
+  STPExplanation,
+  BPDU,
+  RootBridge,
+  PortRoles,
+  PortStates,
+  STPCost,
+  Topology,
+  VLANConfiguration,
+  STPConfiguration,
+  SimulationSansSTP,
+  SimulationAvecSTP,
+  LinkFailure,
+  Analysis,
+  Conclusion,
+]
+
+// Indices des diapositives qui possèdent leurs propres étapes
+const simulationSlides = [15, 16, 17]
+
+export default function App() {
+  const [started, setStarted] = useState(false)
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const totalSlides = slides.length
+  const CurrentSlide = slides[currentSlide]
+
+  // Diapositive suivante
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((current) =>
+      Math.min(current + 1, totalSlides - 1)
+    )
+  }, [totalSlides])
+
+  // Diapositive précédente
+  const previousSlide = useCallback(() => {
+    setCurrentSlide((current) =>
+      Math.max(current - 1, 0)
+    )
+  }, [])
+
+  // Démarrer la présentation en plein écran
+  const startPresentation = async () => {
+    try {
+      await document.documentElement.requestFullscreen()
+      setCurrentSlide(0)
+      setStarted(true)
+    } catch (error) {
+      alert(
+        'Le mode plein écran n’a pas pu être activé. Autorisez le plein écran dans votre navigateur.'
+      )
+    }
+  }
+
+  // Quitter la présentation
+  const exitPresentation = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen()
+    }
+
+    setStarted(false)
+    setCurrentSlide(0)
+  }
+
+  // Détecter l'état du plein écran
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fullscreen = Boolean(document.fullscreenElement)
+
+      setIsFullscreen(fullscreen)
+
+      if (!fullscreen && started) {
+        setStarted(false)
+        setCurrentSlide(0)
+      }
+    }
+
+    document.addEventListener(
+      'fullscreenchange',
+      handleFullscreenChange
+    )
+
+    return () => {
+      document.removeEventListener(
+        'fullscreenchange',
+        handleFullscreenChange
+      )
+    }
+  }, [started])
+
+  // Navigation clavier pour les diapositives normales
+  useEffect(() => {
+    if (!started) return
+
+    const handleKeyDown = (event) => {
+      // Les simulations gèrent elles-mêmes les flèches
+      if (simulationSlides.includes(currentSlide)) return
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault()
+        nextSlide()
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault()
+        previousSlide()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [started, currentSlide, nextSlide, previousSlide])
+
+  // Écran de démarrage
+  if (!started) {
+    return (
+      <PresentationStart onStart={startPresentation} />
+    )
+  }
+
+  return (
+    <main className="fixed inset-0 flex h-screen w-screen flex-col overflow-hidden bg-slate-950">
+
+      {/* Barre supérieure */}
+      <header className="flex h-12 shrink-0 items-center justify-between border-b border-white/10 bg-slate-950 px-4 text-white md:px-8">
+
+        <div className="flex items-center gap-2">
+          <Presentation size={18} className="text-blue-400" />
+
+          <span className="text-sm font-bold tracking-wide">
+            VLAN & PROTOCOLE STP
+          </span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="text-xs text-slate-400">
+            FST Fès · 2026–2027
+          </span>
+
+          <button
+            onClick={exitPresentation}
+            title="Quitter la présentation"
+            className="rounded-lg p-2 text-slate-300 transition hover:bg-white/10 hover:text-white"
+          >
+            <Minimize size={17} />
+          </button>
+        </div>
+      </header>
+
+      {/* Zone des diapositives */}
+      <section className="relative min-h-0 flex-1 overflow-hidden bg-slate-100 p-3 md:p-6">
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+            className="h-full w-full overflow-hidden"
+          >
+            {simulationSlides.includes(currentSlide) ? (
+              <CurrentSlide
+                onComplete={nextSlide}
+                onPreviousSlide={previousSlide}
+              />
+            ) : (
+              <CurrentSlide />
+            )}
+          </motion.div>
+        </AnimatePresence>
+
+      </section>
+
+      {/* Barre inférieure */}
+      <footer className="flex h-14 shrink-0 items-center justify-between border-t border-white/10 bg-slate-950 px-4 text-white md:px-8">
+
+        {/* Progression */}
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-semibold text-slate-400">
+            {String(currentSlide + 1).padStart(2, '0')}
+            {' / '}
+            {String(totalSlides).padStart(2, '0')}
+          </span>
+
+          <div className="h-1.5 w-24 overflow-hidden rounded-full bg-slate-700 md:w-40">
+            <motion.div
+              className="h-full rounded-full bg-blue-500"
+              animate={{
+                width: `${((currentSlide + 1) / totalSlides) * 100}%`,
+              }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="flex items-center gap-2">
+
+          <button
+            onClick={previousSlide}
+            disabled={currentSlide === 0}
+            title="Diapositive précédente"
+            className="rounded-lg border border-white/10 p-2 text-slate-300 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ChevronUp size={19} />
+          </button>
+
+          <button
+            onClick={nextSlide}
+            disabled={currentSlide === totalSlides - 1}
+            title="Diapositive suivante"
+            className="rounded-lg bg-blue-600 p-2 text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-30"
+          >
+            <ChevronDown size={19} />
+          </button>
+
+        </div>
+      </footer>
+    </main>
+  )
+}
