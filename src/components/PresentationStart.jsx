@@ -49,7 +49,7 @@ export default function PresentationStart({ onStart }) {
     }
   }
   return (
-    <main className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-slate-100 p-4 sm:p-6">
+    <main className="fixed inset-0 z-[9999] flex min-h-dvh items-center justify-center overflow-y-auto bg-slate-100 p-3 sm:p-6">
       {/* Subtle grid background */}
       <div
         className="pointer-events-none fixed inset-0 opacity-[0.45]"

@@ -41,7 +41,7 @@ export default function SlideLayout({
   const pad = (v) => String(v).padStart(2, '0')
 
   return (
-    <section className="flex min-h-full w-full flex-col rounded-2xl border border-slate-200/90 bg-white p-4 text-slate-800 shadow-sm sm:p-6 md:p-8 lg:h-full lg:overflow-hidden">
+    <section className="flex min-h-full w-full flex-col rounded-2xl border border-slate-200/90 bg-white p-3.5 text-slate-800 shadow-sm sm:p-6 md:p-8">
       {/* En-tête unifié */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}

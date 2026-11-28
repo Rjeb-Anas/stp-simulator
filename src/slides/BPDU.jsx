@@ -9,6 +9,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import SlideLayout from '../components/SlideLayout'
+import { SwitchNode } from '../components/SimulationLayout'
 
 const information = [
   {
@@ -98,14 +99,17 @@ export default function BPDU() {
             </h2>
           </div>
 
-          <div className="flex min-h-[190px] flex-1 items-center justify-center rounded-lg border border-slate-100 bg-white p-2">
+          <div className="flex min-h-[200px] flex-1 items-center justify-center rounded-lg border border-slate-100 bg-white p-2">
             <svg
-              viewBox="0 0 440 240"
-              className="h-full max-h-[210px] w-full"
+              viewBox="0 0 520 290"
+              className="h-full max-h-[240px] w-full"
               role="img"
               aria-label="Trois commutateurs échangeant des messages BPDU"
             >
               <defs>
+                <pattern id="grid-bpdu" width="22" height="22" patternUnits="userSpaceOnUse">
+                  <path d="M 22 0 L 0 0 0 22" fill="none" stroke="#F1F5F9" strokeWidth="1" />
+                </pattern>
                 <marker
                   id="bpduArrow"
                   markerWidth="7"
@@ -117,40 +121,31 @@ export default function BPDU() {
                   <path d="M0 0 L0 6 L6 3 Z" fill="#0D9488" />
                 </marker>
               </defs>
+              <rect width="520" height="290" fill="url(#grid-bpdu)" />
 
-              <path d="M220 55 L95 175" stroke="#CBD5E1" strokeWidth="4" fill="none" />
-              <path d="M220 55 L345 175" stroke="#CBD5E1" strokeWidth="4" fill="none" />
-              <path d="M95 175 L345 175" stroke="#CBD5E1" strokeWidth="4" fill="none" />
+              {/* Liens */}
+              <line x1="260" y1="62" x2="115" y2="225" stroke="#CBD5E1" strokeWidth="4" strokeLinecap="round" />
+              <line x1="260" y1="62" x2="405" y2="225" stroke="#CBD5E1" strokeWidth="4" strokeLinecap="round" />
+              <line x1="115" y1="225" x2="405" y2="225" stroke="#CBD5E1" strokeWidth="4" strokeLinecap="round" />
 
-              <path d="M190 85 L145 128" stroke="#0D9488" strokeWidth="3" fill="none" markerEnd="url(#bpduArrow)" />
-              <path d="M250 85 L295 128" stroke="#0D9488" strokeWidth="3" fill="none" markerEnd="url(#bpduArrow)" />
-              <path d="M150 175 L280 175" stroke="#0D9488" strokeWidth="3" fill="none" markerEnd="url(#bpduArrow)" />
+              {/* Flèches BPDU */}
+              <path d="M210 105 L162 160" stroke="#0D9488" strokeWidth="3" fill="none" markerEnd="url(#bpduArrow)" />
+              <path d="M310 105 L358 160" stroke="#0D9488" strokeWidth="3" fill="none" markerEnd="url(#bpduArrow)" />
+              <path d="M195 212 L315 212" stroke="#0D9488" strokeWidth="3" fill="none" markerEnd="url(#bpduArrow)" />
 
-              {[
-                { name: 'SWITCH 1', x: 165, y: 15, tx: 220 },
-                { name: 'SWITCH 2', x: 40, y: 150, tx: 95 },
-                { name: 'SWITCH 3', x: 290, y: 150, tx: 345 },
-              ].map((sw) => (
-                <g key={sw.name}>
-                  <rect x={sw.x} y={sw.y} width="110" height="50" rx="9" fill="#0F172A" />
-                  <text x={sw.tx} y={sw.y + 23} fill="white" fontSize="12" textAnchor="middle" fontWeight="bold">
-                    {sw.name}
-                  </text>
-                  <text x={sw.tx} y={sw.y + 38} fill="#94A3B8" fontSize="9" textAnchor="middle">
-                    Commutateur
-                  </text>
-                </g>
-              ))}
+              {/* Pills BPDU */}
+              <rect x="136" y="114" width="60" height="22" rx="6" fill="#CCFBF1" stroke="#5EEAD4" />
+              <text x="166" y="129" fill="#0F766E" fontSize="10" fontWeight="800" textAnchor="middle">BPDU</text>
 
-              <rect x="105" y="95" width="60" height="20" rx="10" fill="#CCFBF1" />
-              <text x="135" y="109" fill="#0F766E" fontSize="10" fontWeight="bold" textAnchor="middle">
-                BPDU
-              </text>
+              <rect x="324" y="114" width="60" height="22" rx="6" fill="#CCFBF1" stroke="#5EEAD4" />
+              <text x="354" y="129" fill="#0F766E" fontSize="10" fontWeight="800" textAnchor="middle">BPDU</text>
 
-              <rect x="275" y="95" width="60" height="20" rx="10" fill="#CCFBF1" />
-              <text x="305" y="109" fill="#0F766E" fontSize="10" fontWeight="bold" textAnchor="middle">
-                BPDU
-              </text>
+              <rect x="218" y="182" width="84" height="22" rx="6" fill="#EFF6FF" stroke="#BFDBFE" />
+              <text x="260" y="197" fill="#1D4ED8" fontSize="9.5" fontWeight="700" textAnchor="middle">Hello · 2 sec</text>
+
+              <SwitchNode x={260} y={62} name="SW1" mac="00:1A:01" priority="4096" isRoot cpu={10} status="root" ports={['up', 'up']} />
+              <SwitchNode x={115} y={225} name="SW2" mac="00:1A:02" priority="32768" cpu={12} status="normal" ports={['up', 'up']} />
+              <SwitchNode x={405} y={225} name="SW3" mac="00:1A:03" priority="32768" cpu={12} status="normal" ports={['up', 'up']} />
             </svg>
           </div>
         </section>

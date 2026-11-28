@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { Network, Crown, Route, ShieldCheck } from 'lucide-react'
 import SlideLayout from '../components/SlideLayout'
+import { SwitchNode, PortBadge } from '../components/SimulationLayout'
 
 const roles = [
   {
@@ -40,37 +41,28 @@ export default function PortRoles() {
           </h2>
 
           <div className="rounded-xl border border-slate-100 bg-white p-2">
-            <svg viewBox="0 0 440 285" className="w-full" role="img">
-              <line x1="220" y1="60" x2="90" y2="225" stroke="#0D9488" strokeWidth="4.5" />
-              <line x1="220" y1="60" x2="350" y2="225" stroke="#0D9488" strokeWidth="4.5" />
-              <line x1="90" y1="225" x2="350" y2="225" stroke="#F59E0B" strokeWidth="4.5" strokeDasharray="8 6" />
+            <svg viewBox="0 0 540 310" className="w-full" role="img">
+              <defs>
+                <pattern id="grid-roles" width="22" height="22" patternUnits="userSpaceOnUse">
+                  <path d="M 22 0 L 0 0 0 22" fill="none" stroke="#F1F5F9" strokeWidth="1" />
+                </pattern>
+              </defs>
+              <rect width="540" height="310" fill="url(#grid-roles)" />
 
-              <rect x="157" y="20" width="126" height="58" rx="12" fill="#F0FDFA" stroke="#0D9488" strokeWidth="2" />
-              <text x="220" y="45" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#115E59">SW1</text>
-              <text x="220" y="63" textAnchor="middle" fontSize="10" fill="#0F766E">Root Bridge</text>
+              <line x1="270" y1="68" x2="115" y2="242" stroke="#0D9488" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="270" y1="68" x2="425" y2="242" stroke="#0D9488" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="115" y1="242" x2="425" y2="242" stroke="#F59E0B" strokeWidth="4.5" strokeDasharray="8 6" strokeLinecap="round" />
 
-              <rect x="27" y="195" width="126" height="58" rx="12" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2" />
-              <text x="90" y="220" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#1E40AF">SW2</text>
-              <text x="90" y="238" textAnchor="middle" fontSize="10" fill="#1D4ED8">Switch</text>
+              <PortBadge x={210} y={118} port="Gi0/1" role="DP" state="fwd" />
+              <PortBadge x={330} y={118} port="Gi0/2" role="DP" state="fwd" />
+              <PortBadge x={168} y={180} port="Gi0/1" role="RP" state="fwd" />
+              <PortBadge x={372} y={180} port="Gi0/1" role="RP" state="fwd" />
+              <PortBadge x={208} y={242} port="Gi0/2" role="DP" state="fwd" />
+              <PortBadge x={332} y={242} port="Gi0/2" role="BLK" state="blk" />
 
-              <rect x="287" y="195" width="126" height="58" rx="12" fill="#EFF6FF" stroke="#2563EB" strokeWidth="2" />
-              <text x="350" y="220" textAnchor="middle" fontSize="14" fontWeight="bold" fill="#1E40AF">SW3</text>
-              <text x="350" y="238" textAnchor="middle" fontSize="10" fill="#1D4ED8">Switch</text>
-
-              <rect x="115" y="110" width="46" height="24" rx="6" fill="#DBEAFE" />
-              <text x="138" y="126" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#1D4ED8">DP</text>
-
-              <rect x="279" y="110" width="46" height="24" rx="6" fill="#DBEAFE" />
-              <text x="302" y="126" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#1D4ED8">DP</text>
-
-              <rect x="44" y="145" width="46" height="24" rx="6" fill="#CCFBF1" />
-              <text x="67" y="161" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#0F766E">RP</text>
-
-              <rect x="350" y="145" width="46" height="24" rx="6" fill="#CCFBF1" />
-              <text x="373" y="161" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#0F766E">RP</text>
-
-              <rect x="190" y="212" width="60" height="24" rx="6" fill="#FEF3C7" stroke="#F59E0B" />
-              <text x="220" y="228" textAnchor="middle" fontSize="11" fontWeight="bold" fill="#B45309">Bloqué</text>
+              <SwitchNode x={270} y={68} name="SW1" mac="00:1A:01" priority="4096" isRoot cpu={11} status="root" ports={['up', 'up']} />
+              <SwitchNode x={115} y={242} name="SW2" mac="00:1A:02" priority="32768" cpu={12} status="normal" ports={['up', 'up']} />
+              <SwitchNode x={425} y={242} name="SW3" mac="00:1A:03" priority="32768" cpu={10} status="normal" ports={['up', 'blk']} />
             </svg>
           </div>
 

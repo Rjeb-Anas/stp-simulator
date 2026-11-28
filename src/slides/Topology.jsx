@@ -6,42 +6,7 @@ import {
   ShieldCheck,
 } from 'lucide-react'
 import SlideLayout from '../components/SlideLayout'
-
-function SwitchNode({ name, x, y, root = false }) {
-  return (
-    <g>
-      <rect
-        x={x - 55}
-        y={y - 27}
-        width="110"
-        height="54"
-        rx="10"
-        fill={root ? '#F0FDFA' : '#EFF6FF'}
-        stroke={root ? '#0D9488' : '#2563EB'}
-        strokeWidth="2"
-      />
-      <text
-        x={x}
-        y={y - 2}
-        textAnchor="middle"
-        fontSize="14"
-        fontWeight="bold"
-        fill={root ? '#115E59' : '#1E40AF'}
-      >
-        {name}
-      </text>
-      <text
-        x={x}
-        y={y + 15}
-        textAnchor="middle"
-        fontSize="10"
-        fill="#64748B"
-      >
-        {root ? 'Root Bridge prévu' : 'Switch'}
-      </text>
-    </g>
-  )
-}
+import { SwitchNode } from '../components/SimulationLayout'
 
 export default function Topology() {
   return (
@@ -65,30 +30,35 @@ export default function Topology() {
             </span>
           </div>
 
-          <div className="flex min-h-[210px] flex-1 items-center rounded-xl border border-slate-100 bg-white p-2">
-            <svg viewBox="0 0 520 330" className="w-full" role="img">
-              <line x1="260" y1="70" x2="105" y2="235" stroke="#64748B" strokeWidth="4.5" />
-              <line x1="260" y1="70" x2="415" y2="235" stroke="#64748B" strokeWidth="4.5" />
-              <line x1="105" y1="235" x2="415" y2="235" stroke="#64748B" strokeWidth="4.5" />
+          <div className="flex min-h-[220px] flex-1 items-center rounded-xl border border-slate-100 bg-white p-2">
+            <svg viewBox="0 0 540 315" className="w-full" role="img">
+              <defs>
+                <pattern id="grid-topo" width="22" height="22" patternUnits="userSpaceOnUse">
+                  <path d="M 22 0 L 0 0 0 22" fill="none" stroke="#F1F5F9" strokeWidth="1" />
+                </pattern>
+              </defs>
+              <rect width="540" height="315" fill="url(#grid-topo)" />
 
-              <rect x="135" y="128" width="64" height="22" rx="6" fill="white" stroke="#CBD5E1" />
-              <text x="167" y="143" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#475569">Trunk</text>
+              <line x1="270" y1="68" x2="115" y2="238" stroke="#3B82F6" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="270" y1="68" x2="425" y2="238" stroke="#3B82F6" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="115" y1="238" x2="425" y2="238" stroke="#3B82F6" strokeWidth="4.5" strokeLinecap="round" />
 
-              <rect x="322" y="128" width="64" height="22" rx="6" fill="white" stroke="#CBD5E1" />
-              <text x="354" y="143" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#475569">Trunk</text>
+              <rect x="148" y="138" width="84" height="22" rx="6" fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
+              <text x="190" y="153" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1E40AF">Trunk 802.1Q</text>
 
-              <rect x="228" y="220" width="64" height="22" rx="6" fill="white" stroke="#CBD5E1" />
-              <text x="260" y="235" textAnchor="middle" fontSize="10" fontWeight="bold" fill="#475569">Trunk</text>
+              <rect x="308" y="138" width="84" height="22" rx="6" fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
+              <text x="350" y="153" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1E40AF">Trunk 802.1Q</text>
 
-              <SwitchNode name="SW1" x={260} y={70} root />
-              <SwitchNode name="SW2" x={105} y={235} />
-              <SwitchNode name="SW3" x={415} y={235} />
+              <rect x="228" y="227" width="84" height="22" rx="6" fill="white" stroke="#CBD5E1" strokeWidth="1.5" />
+              <text x="270" y="242" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1E40AF">Trunk 802.1Q</text>
 
-              <rect x="20" y="292" width="480" height="26" rx="8" fill="#F8FAFC" stroke="#E2E8F0" />
-              <circle cx="38" cy="305" r="5" fill="#0D9488" />
-              <text x="50" y="309" fontSize="10" fill="#475569">SW1 : Root Bridge prévu</text>
-              <circle cx="280" cy="305" r="5" fill="#64748B" />
-              <text x="292" y="309" fontSize="10" fill="#475569">Liaisons Trunk 802.1Q</text>
+              <SwitchNode x={270} y={68} name="SW1" mac="00:1A:01" priority="4096" isRoot cpu={11} status="root" ports={['up', 'up']} />
+              <SwitchNode x={115} y={238} name="SW2" mac="00:1A:02" priority="32768" cpu={12} status="normal" ports={['up', 'up']} />
+              <SwitchNode x={425} y={238} name="SW3" mac="00:1A:03" priority="32768" cpu={12} status="normal" ports={['up', 'up']} />
+
+              <text x="270" y="302" textAnchor="middle" fontSize="10" fontWeight="600" fill="#64748B">
+                VLAN 10 (Admin) · VLAN 20 (Étudiants) · VLAN 30 (Serveurs)
+              </text>
             </svg>
           </div>
 

@@ -8,6 +8,7 @@ import {
   ShieldAlert,
 } from 'lucide-react'
 import SlideLayout from '../components/SlideLayout'
+import { SwitchNode } from '../components/SimulationLayout'
 
 const consequences = [
   {
@@ -77,14 +78,17 @@ export default function Layer2Loops() {
             </h2>
           </div>
 
-          <div className="flex min-h-[200px] flex-1 items-center justify-center rounded-lg bg-white p-2 border border-slate-100">
+          <div className="flex min-h-[210px] flex-1 items-center justify-center rounded-lg border border-slate-100 bg-white p-2">
             <svg
-              viewBox="0 0 440 270"
-              className="h-full max-h-[230px] w-full"
+              viewBox="0 0 520 300"
+              className="h-full max-h-[250px] w-full"
               role="img"
               aria-label="Trois commutateurs connectés en boucle"
             >
               <defs>
+                <pattern id="grid-loop" width="22" height="22" patternUnits="userSpaceOnUse">
+                  <path d="M 22 0 L 0 0 0 22" fill="none" stroke="#F1F5F9" strokeWidth="1" />
+                </pattern>
                 <marker
                   id="loopArrow"
                   markerWidth="8"
@@ -96,35 +100,27 @@ export default function Layer2Loops() {
                   <path d="M0,0 L0,6 L6,3 z" fill="#DC2626" />
                 </marker>
               </defs>
+              <rect width="520" height="300" fill="url(#grid-loop)" />
 
-              <path d="M220 55 L105 195" fill="none" stroke="#DC2626" strokeWidth="4.5" strokeLinecap="round" />
-              <path d="M220 55 L335 195" fill="none" stroke="#DC2626" strokeWidth="4.5" strokeLinecap="round" />
-              <path d="M105 195 L335 195" fill="none" stroke="#DC2626" strokeWidth="4.5" strokeLinecap="round" />
+              {/* Liens formant une boucle */}
+              <line x1="260" y1="64" x2="115" y2="232" stroke="#EF4444" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="260" y1="64" x2="405" y2="232" stroke="#EF4444" strokeWidth="4.5" strokeLinecap="round" />
+              <line x1="115" y1="232" x2="405" y2="232" stroke="#EF4444" strokeWidth="4.5" strokeLinecap="round" />
 
-              <path d="M170 115 L155 135" stroke="#DC2626" strokeWidth="3" fill="none" markerEnd="url(#loopArrow)" />
-              <path d="M270 115 L285 135" stroke="#DC2626" strokeWidth="3" fill="none" markerEnd="url(#loopArrow)" />
-              <path d="M180 195 L245 195" stroke="#DC2626" strokeWidth="3" fill="none" markerEnd="url(#loopArrow)" />
+              {/* Flèches de circulation infinie */}
+              <path d="M196 125 L164 162" stroke="#DC2626" strokeWidth="3" fill="none" markerEnd="url(#loopArrow)" />
+              <path d="M324 125 L356 162" stroke="#DC2626" strokeWidth="3" fill="none" markerEnd="url(#loopArrow)" />
+              <path d="M210 218 L305 218" stroke="#DC2626" strokeWidth="3" fill="none" markerEnd="url(#loopArrow)" />
 
-              {[
-                { name: 'SWITCH 1', x: 165, y: 20, tx: 220 },
-                { name: 'SWITCH 2', x: 50, y: 170, tx: 105 },
-                { name: 'SWITCH 3', x: 280, y: 170, tx: 335 },
-              ].map((sw) => (
-                <g key={sw.name}>
-                  <rect x={sw.x} y={sw.y} width="110" height="50" rx="10" fill="#0F172A" />
-                  <text x={sw.tx} y={sw.y + 23} textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">
-                    {sw.name}
-                  </text>
-                  <text x={sw.tx} y={sw.y + 38} textAnchor="middle" fill="#94A3B8" fontSize="9">
-                    Commutateur
-                  </text>
-                </g>
-              ))}
-
-              <rect x="155" y="110" width="130" height="28" rx="14" fill="#FEE2E2" stroke="#FCA5A5" />
-              <text x="220" y="128" textAnchor="middle" fill="#B91C1C" fontSize="11" fontWeight="bold">
-                Boucle Ethernet
+              {/* Badge central */}
+              <rect x="195" y="146" width="130" height="26" rx="8" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
+              <text x="260" y="163" textAnchor="middle" fontSize="10.5" fontWeight="800" fill="#DC2626">
+                BOUCLE INFINIE L2
               </text>
+
+              <SwitchNode x={260} y={64} name="SW1" mac="00:1A:01" priority="32768" cpu={88} status="danger" ports={['down', 'down']} />
+              <SwitchNode x={115} y={232} name="SW2" mac="00:1A:02" priority="32768" cpu={92} status="danger" ports={['down', 'down']} />
+              <SwitchNode x={405} y={232} name="SW3" mac="00:1A:03" priority="32768" cpu={90} status="danger" ports={['down', 'down']} />
             </svg>
           </div>
         </section>

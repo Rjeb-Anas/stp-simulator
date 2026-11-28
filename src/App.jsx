@@ -82,17 +82,18 @@ export default function App() {
     )
   }, [])
 
-  // Démarrer la présentation en plein écran
+  // Démarrer la présentation (plein écran si supporté)
   const startPresentation = async () => {
     try {
-      await document.documentElement.requestFullscreen()
-      setCurrentSlide(0)
-      setStarted(true)
-    } catch (error) {
-      alert(
-        'Le mode plein écran n’a pas pu être activé. Autorisez le plein écran dans votre navigateur.'
-      )
+      if (document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen()
+      }
+    } catch {
+      // Sur mobile / certains navigateurs, le plein écran peut être bloqué :
+      // on démarre la présentation normalement sans bloquer l'utilisateur.
     }
+    setCurrentSlide(0)
+    setStarted(true)
   }
 
   // Quitter la présentation
@@ -139,12 +140,12 @@ export default function App() {
       // Les simulations gèrent elles-mêmes les flèches
       if (simulationSlides.includes(currentSlide)) return
 
-      if (event.key === 'ArrowDown') {
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
         event.preventDefault()
         nextSlide()
       }
 
-      if (event.key === 'ArrowUp') {
+      if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
         event.preventDefault()
         previousSlide()
       }
@@ -165,7 +166,7 @@ export default function App() {
   }
 
   return (
-    <main className="fixed inset-0 flex h-screen w-screen flex-col overflow-hidden bg-slate-100">
+    <main className="fixed inset-0 flex h-dvh w-screen flex-col overflow-hidden bg-slate-100">
 
       {/* Barre supérieure */}
       <header className="flex h-12 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-3 text-slate-800 sm:px-5 md:px-8">

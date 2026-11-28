@@ -282,12 +282,12 @@ export default function SimulationLayout({
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'ArrowDown') {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
         e.preventDefault()
         e.stopPropagation()
         onNext()
       }
-      if (e.key === 'ArrowUp') {
+      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
         e.preventDefault()
         e.stopPropagation()
         onPrev()
@@ -298,7 +298,7 @@ export default function SimulationLayout({
   }, [onNext, onPrev])
 
   return (
-    <section className="flex min-h-full w-full flex-col rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm sm:p-5 lg:h-full lg:overflow-hidden">
+    <section className="flex min-h-full w-full flex-col rounded-2xl border border-slate-200/90 bg-white p-3.5 shadow-sm sm:p-5">
       {/* En-tête */}
       <header className="mb-3 shrink-0 border-b border-slate-100 pb-2.5">
         <div className="flex items-center justify-between gap-2">
@@ -353,7 +353,7 @@ export default function SimulationLayout({
           </div>
 
           {/* Canvas SVG */}
-          <div className="relative flex min-h-[200px] flex-1 items-center justify-center overflow-hidden rounded-xl border border-slate-200/80 bg-white">
+          <div className="relative flex aspect-[16/10] min-h-[200px] w-full flex-1 items-center justify-center overflow-hidden rounded-xl border border-slate-200/80 bg-white sm:aspect-auto sm:min-h-[250px]">
             {diagram}
           </div>
 

@@ -1,1 +1,11 @@
 @import "tailwindcss";
+
+/* Masquer toutes les barres de défilement tout en conservant le scroll tactile/molette */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
