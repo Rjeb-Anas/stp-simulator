@@ -1,149 +1,117 @@
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion'
 import {
   BookOpen,
-  Network,
   PlayCircle,
   BarChart3,
-  ArrowRight,
   CheckCircle2,
-} from "lucide-react";
+} from 'lucide-react'
+import SlideLayout from '../components/SlideLayout'
 
 const sections = [
   {
-    number: "01",
-    title: "Fonctionnement",
-    subtitle: "Comprendre les concepts",
+    number: '01',
+    title: 'Fonctionnement',
+    subtitle: 'Comprendre les concepts',
     description:
-      "Découvrir les VLAN, les boucles de couche 2 et le fonctionnement du protocole STP.",
+      'Découvrir les VLAN, les boucles de couche 2 et le fonctionnement du protocole STP.',
     topics: [
-      "Segmentation VLAN et Trunk 802.1Q",
-      "Problème des boucles réseau",
-      "BPDU et élection du Root Bridge",
-      "Rôles et états des ports",
+      'Segmentation VLAN et Trunk 802.1Q',
+      'Problème des boucles réseau',
+      'BPDU et élection du Root Bridge',
+      'Rôles et états des ports',
     ],
     icon: BookOpen,
-    duration: "Partie théorique",
+    duration: 'Partie théorique',
   },
   {
-    number: "02",
-    title: "Simulation",
-    subtitle: "Observer le fonctionnement",
+    number: '02',
+    title: 'Simulation',
+    subtitle: 'Observer le fonctionnement',
     description:
-      "Mettre en pratique les notions étudiées à travers une topologie réseau composée de trois switches.",
+      'Mettre en pratique les notions étudiées à travers une topologie réseau composée de trois switches.',
     topics: [
-      "Création et configuration des VLAN",
-      "Simulation sans STP",
-      "Activation et fonctionnement du STP",
+      'Création et configuration des VLAN',
+      'Simulation sans STP',
+      'Activation et fonctionnement du STP',
       "Panne d'un lien et convergence",
     ],
     icon: PlayCircle,
-    duration: "Partie pratique",
+    duration: 'Partie pratique',
   },
   {
-    number: "03",
-    title: "Analyse",
-    subtitle: "Interpréter les résultats",
+    number: '03',
+    title: 'Analyse',
+    subtitle: 'Interpréter les résultats',
     description:
-      "Étudier les résultats obtenus et comprendre les avantages, les limites et les protections du protocole.",
+      'Étudier les résultats obtenus et comprendre les avantages, les limites et les protections du protocole.',
     topics: [
-      "Comparaison avec et sans STP",
-      "Redondance et convergence",
-      "Limites du protocole",
-      "Bonnes pratiques de sécurité",
+      'Comparaison avec et sans STP',
+      'Redondance et convergence',
+      'Limites du protocole',
+      'Bonnes pratiques de sécurité',
     ],
     icon: BarChart3,
-    duration: "Bilan technique",
+    duration: 'Bilan technique',
   },
-];
+]
 
 export default function Problem() {
   return (
-    <section className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-6 text-slate-800 md:p-10">
-
-      {/* En-tête */}
-      <motion.div
-        initial={{ opacity: 0, y: -15 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-7"
-      >
-        <div className="mb-3 flex items-center gap-2">
-          <span className="h-6 w-1 rounded-full bg-teal-600" />
-          <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">
-            Vue d'ensemble
-          </span>
-        </div>
-
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 md:text-4xl">
-          Plan de la présentation
-        </h1>
-
-        <p className="mt-2 text-sm text-slate-500 md:text-base">
-          Trois étapes pour comprendre, expérimenter et analyser
-          le protocole Spanning Tree.
-        </p>
-      </motion.div>
-
-      {/* Fil conducteur */}
-      <div className="mb-6 flex items-center gap-3">
-        <div className="h-px flex-1 bg-slate-200" />
-        <span className="text-xs font-semibold uppercase tracking-widest text-slate-400">
-          Notre parcours
-        </span>
-        <div className="h-px flex-1 bg-slate-200" />
-      </div>
-
-      {/* Cartes */}
-      <div className="grid min-h-0 flex-1 gap-4 md:grid-cols-3">
+    <SlideLayout
+      section="Vue d'ensemble"
+      badge="3 étapes"
+      title="Plan de la présentation"
+      subtitle="Trois étapes pour comprendre, expérimenter et analyser le protocole Spanning Tree."
+      slideNumber={2}
+    >
+      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 md:grid-cols-3">
         {sections.map((section, index) => {
-          const Icon = section.icon;
+          const Icon = section.icon
 
           return (
             <motion.article
               key={section.number}
-              initial={{ opacity: 0, y: 25 }}
+              initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.15 }}
-              className="flex flex-col rounded-lg border border-slate-200 bg-white p-5 md:p-6"
+              transition={{ delay: index * 0.1 }}
+              className="flex flex-col rounded-xl border border-slate-200 bg-slate-50/50 p-5"
             >
-              {/* Numéro et icône */}
-              <div className="mb-5 flex items-center justify-between">
-                <span className="text-4xl font-extrabold text-teal-600">
+              <div className="mb-4 flex items-center justify-between">
+                <span className="text-3xl font-black text-teal-600">
                   {section.number}
                 </span>
 
-                <div className="rounded-lg bg-slate-100 p-3 text-slate-600">
-                  <Icon size={25} />
+                <div className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-700 shadow-xs">
+                  <Icon size={22} />
                 </div>
               </div>
 
-              {/* Titre */}
-              <h2 className="text-xl font-bold text-slate-900 md:text-2xl">
+              <h2 className="text-lg font-bold text-slate-900 sm:text-xl">
                 {section.title}
               </h2>
 
-              <p className="mt-1 text-sm font-medium text-slate-500">
+              <p className="mt-0.5 text-xs font-semibold text-teal-700">
                 {section.subtitle}
               </p>
 
-              <p className="mt-4 text-sm leading-relaxed text-slate-600">
+              <p className="mt-3 text-xs leading-relaxed text-slate-600 sm:text-sm">
                 {section.description}
               </p>
 
-              {/* Contenu */}
-              <div className="my-5 h-px bg-slate-200" />
+              <div className="my-4 h-px bg-slate-200" />
 
-              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <p className="mb-2.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                 Au programme
               </p>
 
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-2.5">
                 {section.topics.map((topic) => (
                   <li
                     key={topic}
-                    className="flex items-start gap-2 text-sm text-slate-600"
+                    className="flex items-start gap-2 text-xs text-slate-600 sm:text-sm"
                   >
                     <CheckCircle2
-                      size={16}
+                      size={15}
                       className="mt-0.5 shrink-0 text-teal-600"
                     />
                     <span>{topic}</span>
@@ -151,28 +119,15 @@ export default function Problem() {
                 ))}
               </ul>
 
-              <div className="mt-auto pt-5">
-                <span className="inline-flex rounded-full border border-slate-300 px-3 py-1 text-xs font-medium text-slate-600">
+              <div className="mt-auto pt-4">
+                <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-[11px] font-semibold text-slate-600">
                   {section.duration}
                 </span>
               </div>
             </motion.article>
-          );
+          )
         })}
       </div>
-
-      {/* Pied de page */}
-      <div className="mt-6 flex items-center justify-between border-t border-slate-200 pt-4">
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          <Network size={15} />
-          <span>VLAN & PROTOCOLE STP</span>
-        </div>
-
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-          02 / 20
-          <ArrowRight size={15} className="text-teal-600" />
-        </div>
-      </div>
-    </section>
-  );
+    </SlideLayout>
+  )
 }

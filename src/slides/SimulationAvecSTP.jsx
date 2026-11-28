@@ -1,438 +1,287 @@
-
 import { useState, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Network,
-  ArrowUp,
-  ArrowDown,
-  RotateCcw,
-  ShieldCheck,
-  CheckCircle2,
-  Lock,
-} from 'lucide-react'
+import { motion } from 'framer-motion'
+import { ShieldCheck } from 'lucide-react'
+import SimulationLayout, { SwitchNode, PortBadge } from '../components/SimulationLayout'
 
 const steps = [
   {
-    title: 'Élection du Root Bridge',
+    title: 'Échange des trames BPDU',
     description:
-      'Les switches échangent des BPDU pour élire le Root Bridge. Celui qui possède le Bridge ID le plus faible devient le pont racine.',
-    detail:
-      'Dans cet exemple, SW1 possède la priorité la plus faible. Il devient donc le Root Bridge du réseau.',
-    status: 'Root Bridge : SW1',
+      'Au démarrage, chaque switch envoie des trames BPDU contenant son Bridge ID (Priorité + MAC) sur tous ses ports pour découvrir la topologie.',
+    statusBadge: (
+      <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-bold text-blue-700">
+        Échange BPDU
+      </span>
+    ),
   },
   {
-    title: 'Sélection des Root Ports',
+    title: 'Élection du Root Bridge',
     description:
-      'Chaque switch non racine sélectionne son Root Port : le port offrant le chemin le moins coûteux vers le Root Bridge.',
-    detail:
-      'SW2 et SW3 choisissent chacun leur lien direct vers SW1 comme Root Port.',
-    status: 'Root Ports : SW2 et SW3',
+      'SW1 possède la priorité configurée la plus faible (4096 contre 32768 par défaut). Tous les switches reconnaissent SW1 comme Root Bridge.',
+    statusBadge: (
+      <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold text-teal-700">
+        SW1 = Root Bridge
+      </span>
+    ),
+  },
+  {
+    title: 'Sélection des Root & Designated Ports',
+    description:
+      'SW2 et SW3 élisent leur lien direct vers SW1 (Coût = 4) comme Root Port (RP). Les ports de SW1 deviennent Designated Ports (DP).',
+    statusBadge: (
+      <span className="rounded-full bg-teal-100 px-2 py-0.5 text-[10px] font-bold text-teal-700">
+        Coût chemin = 4
+      </span>
+    ),
   },
   {
     title: 'Blocage du lien redondant',
     description:
-      'STP détecte le chemin redondant entre SW2 et SW3. Un port est placé en état Blocking pour supprimer la boucle.',
-    detail:
-      'Le lien reste physiquement connecté, mais le port bloqué ne transmet pas le trafic utilisateur. Il pourra être réactivé si la topologie change.',
-    status: 'Boucle éliminée',
+      'Entre SW2 et SW3, SW3 possède le Bridge ID le plus élevé. Son port Gi0/2 passe en état Blocking (BLK) pour casser la boucle logique.',
+    statusBadge: (
+      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
+        Boucle éliminée
+      </span>
+    ),
   },
 ]
 
-function SwitchNode({ name, x, y, root, active }) {
-  return (
-    <g>
-      {root && (
-        <circle
-          cx={x}
-          cy={y}
-          r="43"
-          fill="#dbeafe"
-          opacity="0.7"
-        />
-      )}
+const logsByStep = [
+  [
+    { time: '00:00:01', level: 'info', text: 'STP: Envoi BPDU Hello (Root=4096.001A.01) sur Gi0/1-2' },
+    { time: '00:00:02', level: 'info', text: 'SW2: RX BPDU meilleur Root ID depuis SW1 (4096 < 32768)' },
+    { time: '00:00:02', level: 'info', text: 'SW3: RX BPDU meilleur Root ID depuis SW1 (4096 < 32768)' },
+  ],
+  [
+    { time: '00:00:04', level: 'success', text: '%SPANTREE-5-ROOTCHANGE: SW1 élu Root Bridge (BID 4096)' },
+    { time: '00:00:04', level: 'info', text: 'SW2/SW3: Mise à jour du Root ID -> 4096.001A.01' },
+  ],
+  [
+    { time: '00:00:06', level: 'success', text: 'SW2: Gi0/1 sélectionné comme Root Port (Cost 4)' },
+    { time: '00:00:06', level: 'success', text: 'SW3: Gi0/1 sélectionné comme Root Port (Cost 4)' },
+    { time: '00:00:07', level: 'info', text: 'SW1: Gi0/1 & Gi0/2 -> Designated Port (FWD)' },
+  ],
+  [
+    { time: '00:00:09', level: 'warn', text: 'SW3: Détection segment redondant sur Gi0/2 (vs SW2)' },
+    { time: '00:00:10', level: 'warn', text: '%SPANTREE-6-PORT_STATE: SW3 Gi0/2 -> BLOCKING (ALT)' },
+    { time: '00:00:11', level: 'success', text: 'STP Convergé : Topologie sans boucle opérationnelle.' },
+  ],
+]
 
-      <rect
-        x={x - 38}
-        y={y - 25}
-        width="76"
-        height="50"
-        rx="10"
-        fill={root ? '#2563eb' : '#ffffff'}
-        stroke={root ? '#1d4ed8' : active ? '#16a34a' : '#cbd5e1'}
-        strokeWidth="2"
-      />
-
-      <text
-        x={x}
-        y={y + 5}
-        textAnchor="middle"
-        fontSize="15"
-        fontWeight="700"
-        fill={root ? '#ffffff' : '#0f172a'}
-      >
-        {name}
-      </text>
-
-      {root && (
-        <text
-          x={x}
-          y={y - 34}
-          textAnchor="middle"
-          fontSize="11"
-          fontWeight="700"
-          fill="#2563eb"
-        >
-          ROOT BRIDGE
-        </text>
-      )}
-    </g>
-  )
-}
-
-function NetworkTopology({ step }) {
-  const blocked = step >= 2
+function TopologyCanvas({ step }) {
+  const showBPDU = step === 0
+  const rootElected = step >= 1
+  const rolesAssigned = step >= 2
+  const blocked = step >= 3
 
   return (
-    <svg viewBox="0 0 500 340" className="h-full w-full">
-      {/* Liens vers le Root Bridge */}
+    <svg viewBox="0 0 560 320" className="h-full w-full">
+      <defs>
+        <pattern id="grid-avec" width="24" height="24" patternUnits="userSpaceOnUse">
+          <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#F1F5F9" strokeWidth="1" />
+        </pattern>
+      </defs>
+      <rect width="560" height="320" fill="url(#grid-avec)" />
+
+      {/* Liens SW1 - SW2 et SW1 - SW3 */}
       <line
-        x1="250"
-        y1="85"
-        x2="115"
-        y2="245"
-        stroke="#16a34a"
-        strokeWidth="5"
+        x1="280" y1="68" x2="120" y2="245"
+        stroke={rolesAssigned ? '#0D9488' : '#3B82F6'}
+        strokeWidth="4.5"
+        strokeLinecap="round"
+      />
+      <line
+        x1="280" y1="68" x2="440" y2="245"
+        stroke={rolesAssigned ? '#0D9488' : '#3B82F6'}
+        strokeWidth="4.5"
         strokeLinecap="round"
       />
 
+      {/* Lien redondant SW2 - SW3 */}
       <line
-        x1="250"
-        y1="85"
-        x2="385"
-        y2="245"
-        stroke="#16a34a"
-        strokeWidth="5"
+        x1="120" y1="245" x2="440" y2="245"
+        stroke={blocked ? '#F59E0B' : '#94A3B8'}
+        strokeWidth="4.5"
+        strokeDasharray={blocked ? '9 7' : '0'}
         strokeLinecap="round"
       />
 
-      {/* Lien redondant */}
-      <line
-        x1="115"
-        y1="245"
-        x2="385"
-        y2="245"
-        stroke={blocked ? '#ef4444' : '#94a3b8'}
-        strokeWidth="5"
-        strokeDasharray={blocked ? '9 8' : '0'}
-        strokeLinecap="round"
-      />
-
-      {/* Étiquettes des ports */}
-      {step >= 1 && (
+      {/* Paquets BPDU animés à l'étape 0 */}
+      {showBPDU && (
         <>
-          <text
-            x="155"
-            y="145"
-            fontSize="12"
-            fontWeight="700"
-            fill="#16a34a"
-          >
-            Root Port
-          </text>
-
-          <text
-            x="325"
-            y="145"
-            fontSize="12"
-            fontWeight="700"
-            fill="#16a34a"
-          >
-            Root Port
-          </text>
-        </>
-      )}
-
-      {/* Port bloqué */}
-      {blocked && (
-        <>
-          <rect
-            x="208"
-            y="222"
-            width="84"
-            height="27"
-            rx="7"
-            fill="#fee2e2"
-            stroke="#ef4444"
+          <motion.rect
+            width="14" height="10" rx="3" fill="#0D9488"
+            animate={{ x: [273, 113], y: [63, 240] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
           />
-
-          <text
-            x="250"
-            y="240"
-            textAnchor="middle"
-            fontSize="12"
-            fontWeight="700"
-            fill="#dc2626"
-          >
-            BLOCKING
-          </text>
+          <motion.rect
+            width="14" height="10" rx="3" fill="#0D9488"
+            animate={{ x: [273, 433], y: [63, 240] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut', delay: 0.25 }}
+          />
+          <motion.rect
+            width="14" height="10" rx="3" fill="#3B82F6"
+            animate={{ x: [113, 433], y: [240, 240] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+          />
         </>
       )}
 
-      <SwitchNode
-        name="SW1"
-        x={250}
-        y={85}
-        root={true}
-        active={true}
-      />
-
-      <SwitchNode
-        name="SW2"
-        x={115}
-        y={245}
-        active={step >= 1}
-      />
-
-      <SwitchNode
-        name="SW3"
-        x={385}
-        y={245}
-        active={step >= 1}
-      />
-
-      {step === 0 && (
-        <text
-          x="250"
-          y="320"
-          textAnchor="middle"
-          fontSize="12"
-          fill="#64748b"
-        >
-          Élection du pont racine
-        </text>
+      {/* Badges de ports */}
+      {rolesAssigned && (
+        <>
+          <PortBadge x={222} y={118} port="Gi0/1" role="DP" state="fwd" />
+          <PortBadge x={338} y={118} port="Gi0/2" role="DP" state="fwd" />
+          <PortBadge x={175} y={182} port="Gi0/1" role="RP" state="fwd" />
+          <PortBadge x={385} y={182} port="Gi0/1" role="RP" state="fwd" />
+          <PortBadge x={212} y={245} port="Gi0/2" role="DP" state="fwd" />
+        </>
       )}
+
+      {blocked && (
+        <PortBadge x={346} y={245} port="Gi0/2" role="BLK" state="blk" />
+      )}
+
+      {/* Coûts de lien */}
+      {rolesAssigned && (
+        <>
+          <text x="150" y="138" fontSize="10" fontWeight="700" fill="#0F766E">Cost: 4</text>
+          <text x="410" y="138" textAnchor="end" fontSize="10" fontWeight="700" fill="#0F766E">Cost: 4</text>
+        </>
+      )}
+
+      {/* Switches */}
+      <SwitchNode
+        x={280}
+        y={68}
+        name="SW1"
+        mac="00:1A:01"
+        priority="4096"
+        isRoot={rootElected}
+        cpu={11}
+        status={rootElected ? 'root' : 'normal'}
+        ports={['up', 'up']}
+      />
+      <SwitchNode
+        x={120}
+        y={245}
+        name="SW2"
+        mac="00:1A:02"
+        priority="32768"
+        cpu={12}
+        status="normal"
+        ports={['up', 'up']}
+      />
+      <SwitchNode
+        x={440}
+        y={245}
+        name="SW3"
+        mac="00:1A:03"
+        priority="32768"
+        cpu={10}
+        status="normal"
+        ports={blocked ? ['up', 'blk'] : ['up', 'up']}
+      />
     </svg>
   )
 }
 
-export default function SimulationAvecSTP({
-  onComplete,
-  onPreviousSlide,
-}) {
+export default function SimulationAvecSTP({ onComplete, onPreviousSlide }) {
   const [step, setStep] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const lastStep = steps.length - 1
 
-  // Étape suivante ou diapositive suivante
   const nextStep = useCallback(() => {
-    if (step < steps.length - 1) {
-      setStep((current) => current + 1)
-    } else {
-      onComplete?.()
-    }
-  }, [step, onComplete])
+    setIsPlaying(false)
+    if (step < lastStep) setStep((v) => v + 1)
+    else onComplete?.()
+  }, [step, lastStep, onComplete])
 
-  // Étape précédente ou diapositive précédente
-  const previousStep = useCallback(() => {
-    if (step > 0) {
-      setStep((current) => current - 1)
-    } else {
-      onPreviousSlide?.()
-    }
+  const prevStep = useCallback(() => {
+    setIsPlaying(false)
+    if (step > 0) setStep((v) => v - 1)
+    else onPreviousSlide?.()
   }, [step, onPreviousSlide])
 
-  // Réinitialiser la simulation
-  const reset = () => setStep(0)
+  const reset = useCallback(() => {
+    setIsPlaying(false)
+    setStep(0)
+  }, [])
 
-  // Navigation clavier
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'ArrowDown') {
-        event.preventDefault()
-        event.stopPropagation()
-        nextStep()
-      }
+    if (!isPlaying) return
+    const timer = setInterval(() => {
+      setStep((prev) => {
+        if (prev >= lastStep) {
+          setIsPlaying(false)
+          return prev
+        }
+        return prev + 1
+      })
+    }, 2600)
+    return () => clearInterval(timer)
+  }, [isPlaying, lastStep])
 
-      if (event.key === 'ArrowUp') {
-        event.preventDefault()
-        event.stopPropagation()
-        previousStep()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown, true)
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown, true)
-    }
-  }, [nextStep, previousStep])
-
-  const currentStep = steps[step]
+  const metrics = [
+    {
+      label: 'Root Bridge',
+      value: step >= 1 ? 'SW1 (4096)' : 'Élection...',
+      color: step >= 1 ? 'text-teal-700' : 'text-blue-600',
+    },
+    {
+      label: 'Ports actifs',
+      value: step >= 3 ? '5 FWD / 1 BLK' : '6 en négociation',
+      color: 'text-slate-900',
+    },
+    {
+      label: 'Charge CPU',
+      value: '11 % (Normal)',
+      color: 'text-teal-700',
+    },
+    {
+      label: 'État STP',
+      value: step === 3 ? 'Convergé' : 'Calcul...',
+      color: step === 3 ? 'text-emerald-600' : 'text-amber-600',
+    },
+  ]
 
   return (
-    <section className="flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 p-4 md:p-6">
-
-      {/* Header */}
-      <header className="mb-4 flex shrink-0 items-center justify-between">
-        <div>
-          <div className="mb-1 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-blue-600">
-            <ShieldCheck size={15} />
-            Simulation avec STP
-          </div>
-
-          <h2 className="text-2xl font-bold text-slate-900">
-            Élimination des boucles
-          </h2>
-
-          <p className="mt-1 text-sm text-slate-500">
-            Fonctionnement du protocole Spanning Tree
-          </p>
-        </div>
-
-        <div className="rounded-xl bg-blue-100 p-3 text-blue-700">
-          <Network size={27} />
-        </div>
-      </header>
-
-      {/* Progression */}
-      <div className="mb-4 flex shrink-0 gap-2">
-        {steps.map((item, index) => (
-          <div
-            key={item.title}
-            className={`h-2 flex-1 rounded-full transition-colors ${
-              index <= step ? 'bg-blue-600' : 'bg-slate-200'
-            }`}
-          />
-        ))}
-      </div>
-
-      {/* Main */}
-      <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[1.5fr_1fr]">
-
-        {/* Topologie */}
-        <div className="flex min-h-0 flex-col rounded-2xl border border-slate-200 bg-white p-3">
-          <div className="mb-2 flex shrink-0 items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-800">
-              Topologie réseau
-            </h3>
-
-            <span className="rounded-lg bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
-              STP activé
-            </span>
-          </div>
-
-          <div className="min-h-0 flex-1">
-            <NetworkTopology step={step} />
-          </div>
-
-          <div className="flex shrink-0 flex-wrap justify-center gap-4 border-t border-slate-100 pt-3 text-xs text-slate-500">
-            <span className="flex items-center gap-2">
-              <span className="h-1 w-5 rounded bg-green-500" />
-              Lien actif
-            </span>
-
-            <span className="flex items-center gap-2">
-              <span className="h-1 w-5 rounded border-t-2 border-dashed border-red-500" />
-              Lien bloqué
-            </span>
-          </div>
-        </div>
-
-        {/* Explication */}
-        <div className="flex min-h-0 flex-col gap-3">
-          <div className="rounded-2xl border border-slate-200 bg-white p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
-                Étape {step + 1} / {steps.length}
-              </span>
-
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                STP
-              </span>
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.25 }}
-              >
-                <h3 className="mb-3 text-lg font-bold text-slate-900">
-                  {currentStep.title}
-                </h3>
-
-                <p className="text-sm leading-relaxed text-slate-600">
-                  {currentStep.description}
-                </p>
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          <div className="flex-1 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-            <div className="mb-2 flex items-center gap-2 text-sm font-bold text-blue-800">
-              <CheckCircle2 size={17} />
-              Résultat
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={step}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="text-sm leading-relaxed text-blue-900"
-              >
-                {currentStep.detail}
-              </motion.p>
-            </AnimatePresence>
-
-            <div className="mt-4 rounded-xl bg-white p-3">
-              <div className="flex items-center gap-2 text-sm font-bold text-slate-800">
-                {step === 2 ? (
-                  <Lock size={16} className="text-red-500" />
-                ) : (
-                  <CheckCircle2 size={16} className="text-green-600" />
-                )}
-
-                {currentStep.status}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Contrôles */}
-      <footer className="mt-4 flex shrink-0 items-center justify-between border-t border-slate-200 pt-3">
-        <span className="text-xs text-slate-400">
-          SIMULATION · 17 / 20
+    <SimulationLayout
+      section="Simulation 02 · Avec STP"
+      title="Élimination des boucles — Avec STP activé"
+      subtitle="Élection du Root Bridge, attribution des rôles et blocage logique du lien redondant"
+      accent="teal"
+      slideNumber={17}
+      steps={steps}
+      step={step}
+      onStepSelect={(i) => { setIsPlaying(false); setStep(i) }}
+      onNext={nextStep}
+      onPrev={prevStep}
+      onReset={reset}
+      isPlaying={isPlaying}
+      onTogglePlay={() => setIsPlaying((p) => !p)}
+      icon={ShieldCheck}
+      badge={
+        <span className="rounded-full bg-teal-100 px-2.5 py-0.5 text-[11px] font-bold text-teal-700">
+          802.1D / RSTP Actif
         </span>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={previousStep}
-            className="flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-          >
-            <ArrowUp size={16} />
-            Haut
-          </button>
-
-          <button
-            onClick={nextStep}
-            className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
-          >
-            Bas
-            <ArrowDown size={16} />
-          </button>
-
-          <button
-            onClick={reset}
-            className="rounded-xl border border-slate-300 bg-white p-2 text-slate-600 transition hover:bg-slate-100"
-            title="Recommencer"
-          >
-            <RotateCcw size={17} />
-          </button>
-        </div>
-      </footer>
-    </section>
+      }
+      diagram={<TopologyCanvas step={step} />}
+      legend={
+        <>
+          <span className="flex items-center gap-1.5">
+            <span className="h-1 w-4 rounded bg-teal-600" /> Lien actif (RP / DP)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-1 w-4 border-t-2 border-dashed border-amber-500" /> Port bloqué (BLK)
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-3.5 rounded-sm bg-teal-600" /> Trame BPDU
+          </span>
+        </>
+      }
+      metrics={metrics}
+      logs={logsByStep[step]}
+    />
   )
 }

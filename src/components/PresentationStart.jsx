@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion'
 import {
   Presentation,
@@ -17,71 +16,64 @@ const topics = [
 
 export default function PresentationStart({ onStart }) {
   return (
-    <main className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-[#080E1C] p-4 sm:p-6">
+    <main className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto bg-slate-100 p-4 sm:p-6">
+      {/* Subtle grid background */}
+      <div
+        className="pointer-events-none fixed inset-0 opacity-[0.45]"
+        style={{
+          backgroundImage:
+            'radial-gradient(#cbd5e1 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }}
+      />
 
-      {/* Background */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute -left-32 -top-32 h-80 w-80 rounded-full bg-blue-600/15 blur-[100px]" />
-        <div className="absolute -bottom-32 -right-32 h-80 w-80 rounded-full bg-cyan-500/10 blur-[100px]" />
-
-        <div
-          className="absolute inset-0 opacity-[0.035]"
-          style={{
-            backgroundImage:
-              'linear-gradient(#94a3b8 1px, transparent 1px), linear-gradient(90deg, #94a3b8 1px, transparent 1px)',
-            backgroundSize: '40px 40px',
-          }}
-        />
-      </div>
-
-      {/* Main content */}
+      {/* Main card */}
       <motion.section
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.55 }}
-        className="relative my-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-700/70 bg-[#111B2E] shadow-2xl"
+        transition={{ duration: 0.45 }}
+        className="relative my-auto w-full max-w-2xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-200/70"
       >
-        <div className="h-1 w-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600" />
+        <div className="h-1.5 w-full bg-gradient-to-r from-teal-600 via-blue-600 to-teal-500" />
 
         <div className="px-5 py-7 sm:px-10 sm:py-9">
-
           {/* Institution */}
           <div className="mb-6 flex items-center justify-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/20 bg-blue-500/10">
-              <GraduationCap size={22} className="text-cyan-400" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-teal-200 bg-teal-50 text-teal-700">
+              <GraduationCap size={22} />
             </div>
 
             <div>
-              <p className="text-sm font-bold tracking-wider text-white">
+              <p className="text-sm font-bold tracking-wider text-slate-900">
                 FST FÈS
               </p>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400">
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">
                 Faculté des Sciences et Techniques
               </p>
             </div>
           </div>
 
           {/* Main icon */}
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-500/10">
-            <Network size={32} className="text-cyan-400" strokeWidth={1.6} />
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-blue-100 bg-blue-50 text-blue-600">
+            <Network size={32} strokeWidth={1.7} />
           </div>
 
           {/* Title */}
           <div className="text-center">
-            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400 sm:text-xs">
+            <p className="mb-3 text-[10px] font-bold uppercase tracking-[0.25em] text-teal-700 sm:text-xs">
               Présentation académique · 2026–2027
             </p>
 
-            <h1 className="text-3xl font-black leading-tight text-white sm:text-4xl md:text-5xl">
+            <h1 className="text-3xl font-black leading-tight text-slate-900 sm:text-4xl md:text-5xl">
               VLAN
-              <span className="mx-2 font-light text-slate-500">&</span>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
+              <span className="mx-2 font-light text-slate-400">&</span>
+              <span className="text-teal-600">
                 PROTOCOLE STP
               </span>
             </h1>
 
-            <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-slate-400 sm:text-base">
-              Fonctionnement, simulation et analyse des mécanismes
+            <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-slate-600 sm:text-base">
+              Fonctionnement, simulation interactive et analyse des mécanismes
               de segmentation réseau et de prévention des boucles de niveau 2.
             </p>
           </div>
@@ -91,10 +83,10 @@ export default function PresentationStart({ onStart }) {
             {topics.map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex flex-col items-center gap-2 rounded-xl border border-slate-700/70 bg-slate-800/50 px-2 py-3 sm:py-4"
+                className="flex flex-col items-center gap-2 rounded-xl border border-slate-200 bg-slate-50/70 px-2 py-3 sm:py-4"
               >
-                <Icon size={21} className="text-blue-400" />
-                <span className="text-center text-[10px] font-semibold text-slate-300 sm:text-xs">
+                <Icon size={20} className="text-teal-600" />
+                <span className="text-center text-[11px] font-semibold text-slate-700 sm:text-xs">
                   {label}
                 </span>
               </div>
@@ -102,29 +94,29 @@ export default function PresentationStart({ onStart }) {
           </div>
 
           {/* Fullscreen information */}
-          <div className="mb-5 flex items-center justify-center gap-3 rounded-lg border border-slate-700/60 bg-slate-800/40 px-3 py-3">
-            <Maximize size={17} className="shrink-0 text-cyan-400" />
-            <p className="text-center text-xs text-slate-400">
+          <div className="mb-5 flex items-center justify-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5">
+            <Maximize size={16} className="shrink-0 text-blue-600" />
+            <p className="text-center text-xs text-slate-600">
               Présentation optimisée pour le mode plein écran.
             </p>
           </div>
 
           {/* Start */}
           <motion.button
-            whileHover={{ scale: 1.015 }}
-            whileTap={{ scale: 0.98 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
             onClick={onStart}
-            className="group flex w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-blue-950/30 transition-all hover:from-blue-500 hover:to-cyan-500 sm:py-4"
+            className="group flex w-full items-center justify-center gap-3 rounded-xl bg-teal-600 px-5 py-3.5 text-sm font-bold text-white shadow-md shadow-teal-600/20 transition hover:bg-teal-700 sm:py-4"
           >
             Commencer la présentation
             <ArrowRight
-              size={19}
+              size={18}
               className="transition-transform group-hover:translate-x-1"
             />
           </motion.button>
 
           {/* Footer */}
-          <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-slate-700/60 pt-4 text-[10px] text-slate-500 sm:flex-row sm:text-xs">
+          <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-slate-100 pt-4 text-[11px] text-slate-500 sm:flex-row">
             <span>Département Informatique · Réseaux</span>
             <span>Navigation avec les flèches ↑ et ↓</span>
           </div>
